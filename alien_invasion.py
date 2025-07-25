@@ -7,6 +7,7 @@ Date: 7/16/2025
 
 import sys
 import pygame
+import random
 
 from time import sleep
 from settings import Settings
@@ -14,6 +15,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
+
 class AlienInvasion:
     def __init__(self):
         pygame.init()
@@ -84,6 +86,7 @@ class AlienInvasion:
         
         self._check_bullet_collisions()
 
+
     def _check_bullet_collisions(self):
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
 
@@ -109,11 +112,13 @@ class AlienInvasion:
         else:
             self._check_aliens_bottom()
 
+
     def _check_aliens_bottom(self):
         for alien in self.aliens.sprites():
             if alien.rect.bottom >= self.settings.screen_height:
                 self._ship_hit()
                 break
+
 
     def _ship_hit(self):
 
@@ -131,6 +136,7 @@ class AlienInvasion:
 
             sleep(1)
 
+
     def _create_fleet(self):
         alien = Alien(self)
         alien_width, alien_height = alien.rect.size
@@ -139,9 +145,11 @@ class AlienInvasion:
         while current_y < (self.settings.screen_height - 4 * alien_height):
         
             while current_x < (self.settings.screen_width - 2 * alien_width):
+                if random.randint(1, 4) % 4 == 0:
+                    current_x += 2 * alien_width
+                    continue
                 self._create_alien(current_x, current_y)
                 current_x += 2 * alien_width
-                
             # Done drawing row adjusting for next row
             current_y += 2 * alien_height
             current_x = alien_width
