@@ -15,6 +15,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
+from button import Button
 
 class AlienInvasion:
     def __init__(self):
@@ -28,7 +29,8 @@ class AlienInvasion:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.stats = GameStats(self)
-        self.game_active = True
+        self.game_active = False
+        self.play_button = Button(self, "Play")
         self._create_fleet()
         pygame.display.set_caption("Alien Invasion!")
 
@@ -50,6 +52,13 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
 
+    def _check_play_button(self, mouse_pos):
+        """Start a new game when the player clicks Play."""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.game_active:
+            self.stats.reset_stats()
+            self.game_active = True
+            pygame.mouse.set_visible(False)
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -59,6 +68,9 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
 
 
     def _update_screen(self):
@@ -69,6 +81,9 @@ class AlienInvasion:
             bullet.draw_bullet()
             # Make the most recently drawn screen visible
         self.aliens.draw(self.screen)
+        if not self.game_active:
+            self.play_button.draw_button()
+
         pygame.display.flip()
 
 
@@ -127,6 +142,8 @@ class AlienInvasion:
 
         else:
             self.stats.ships_left -= 1
+            self.game_active = False
+            pygame.mouse.set_visible(True)
 
             self.bullets.empty()
             self.aliens.empty()
@@ -176,7 +193,8 @@ class AlienInvasion:
                 self._update_ship()
                 self._update_aliens()
                 self._update_bullets()
-                self._update_screen()
+            
+            self._update_screen()
                 
             self.clock.tick(self.settings.clock_tick)
 
